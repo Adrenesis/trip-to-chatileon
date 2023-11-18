@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://graphics/deathplane-placeholder.png" type="Texture" id=1]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 10, 100 )
+
+[node name="Deathplane" type="Sprite"]
+texture = ExtResource( 1 )
+offset = Vector2( 0, 10 )
+region_rect = Rect2( 0, 0, 20, 5 )
+
+[node name="Sprite" type="Sprite" parent="."]
+position = Vector2( 0, 50058 )
+scale = Vector2( 1, 100000 )
+texture = ExtResource( 1 )
+region_enabled = true
+region_rect = Rect2( 0, 99, 20, 1 )
+
+[node name="Area2DDeathPlane" type="Area2D" parent="."]
+position = Vector2( 0, 159 )
+collision_layer = 8
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2DDeathPlane"]
+shape = SubResource( 1 )

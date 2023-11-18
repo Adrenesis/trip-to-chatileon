@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://graphics/shadow-placeholder.png" type="Texture" id=1]
+
+[sub_resource type="RectangleShape2D" id=2]
+
+[node name="Shadow" type="Sprite"]
+texture = ExtResource( 1 )
+offset = Vector2( 0, 10 )
+
+[node name="Area2DShadow" type="Area2D" parent="."]
+modulate = Color( 1, 0, 0, 1 )
+self_modulate = Color( 1, 0, 0, 1 )
+position = Vector2( 0, 10 )
+collision_layer = 256
+collision_mask = 256
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2DShadow"]
+shape = SubResource( 2 )
