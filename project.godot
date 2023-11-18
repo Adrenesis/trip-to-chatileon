@@ -8,10 +8,20 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Sprite",
+"class": "PlatformArea",
+"language": "GDScript",
+"path": "res://scenes/platform.gd"
+} ]
+_global_script_class_icons={
+"PlatformArea": ""
+}
+
 [application]
 
 config/name="Jam 2023"
-run/main_scene="res://Level.tscn"
+run/main_scene="res://scenes/Level.tscn"
 config/icon="res://icon.png"
 
 [gui]
