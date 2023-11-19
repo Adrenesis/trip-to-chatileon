@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://scenes/Bricks.tscn" type="PackedScene" id=1]
+
+[node name="BrickWall" type="Node2D"]
+position = Vector2( 2955, 390 )
+
+[node name="Bricks2" parent="." instance=ExtResource( 1 )]
+position = Vector2( -3840, -809 )
+scale = Vector2( 1.15394, 1.15394 )
+
+[node name="Bricks3" parent="." instance=ExtResource( 1 )]
+position = Vector2( 956, -809 )
+scale = Vector2( 1.15394, 1.15394 )
+
+[node name="Bricks4" parent="." instance=ExtResource( 1 )]
+position = Vector2( -1503, -809 )
+scale = Vector2( 1.15394, 1.15394 )

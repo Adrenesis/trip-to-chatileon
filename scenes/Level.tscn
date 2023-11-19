@@ -1,12 +1,13 @@
-[gd_scene load_steps=23 format=2]
+[gd_scene load_steps=31 format=2]
 
 [ext_resource path="res://graphics/sky.png" type="Texture" id=1]
+[ext_resource path="res://scenes/CatSpawn.gd" type="Script" id=2]
 [ext_resource path="res://scenes/Level.gd" type="Script" id=3]
-[ext_resource path="res://scenes/BricksReversed.tscn" type="PackedScene" id=4]
+[ext_resource path="res://scenes/BrickWall.tscn" type="PackedScene" id=4]
 [ext_resource path="res://scenes/house0.tscn" type="PackedScene" id=5]
 [ext_resource path="res://scenes/platform.tscn" type="PackedScene" id=6]
 [ext_resource path="res://scenes/deathplane.tscn" type="PackedScene" id=7]
-[ext_resource path="res://scenes/HardPlatform.tscn" type="PackedScene" id=8]
+[ext_resource path="res://scenes/BigCat.tscn" type="PackedScene" id=8]
 [ext_resource path="res://scenes/house1.tscn" type="PackedScene" id=9]
 [ext_resource path="res://scenes/house3.tscn" type="PackedScene" id=10]
 [ext_resource path="res://scenes/Bricks.tscn" type="PackedScene" id=11]
@@ -15,24 +16,37 @@
 [ext_resource path="res://scenes/house2.tscn" type="PackedScene" id=14]
 [ext_resource path="res://scenes/house4.tscn" type="PackedScene" id=15]
 [ext_resource path="res://scenes/wall.tscn" type="PackedScene" id=16]
-[ext_resource path="res://scenes/Cat.tscn" type="PackedScene" id=17]
+[ext_resource path="res://graphics/cats-placeholder.png" type="Texture" id=17]
 [ext_resource path="res://scenes/Shadow.tscn" type="PackedScene" id=18]
 [ext_resource path="res://graphics/bre-background-houses.png" type="Texture" id=19]
 [ext_resource path="res://graphics/bre-cliff-beach.png" type="Texture" id=20]
 [ext_resource path="res://graphics/wave-pattern1.png" type="Texture" id=21]
+[ext_resource path="res://graphics/beach.png" type="Texture" id=22]
+[ext_resource path="res://scenes/EndCat.gd" type="Script" id=23]
+[ext_resource path="res://graphics/platform.png" type="Texture" id=24]
+[ext_resource path="res://graphics/big_bircks.png" type="Texture" id=25]
+[ext_resource path="res://graphics/wall_brick.png" type="Texture" id=26]
 
 [sub_resource type="Shader" id=1]
 code = "shader_type canvas_item;
 
 uniform sampler2D wave_pattern;
+uniform sampler2D beach;
 uniform vec4 water_tint_0;
 
 void fragment() {
 	float uvx = mod((UV.x-0.5)*(5.0/((UV.y)*10.0+1.0))*3.0+TIME/10.0+sin(TIME/5.0)/4.0, 1.0);
 	float uvy = mod(UV.y*6.0+TIME/50.0+sin(TIME/5.0)/4.0, 1.0);
 	vec4 color = textureLod(wave_pattern, vec2(uvx, uvy), 1.0);
-	color = mix(color, textureLod(wave_pattern, mod(vec2(UV.x, UV.y)+TIME/64.0, 1.0), 1.0), 0.4);
-	color = mix(color, water_tint_0, 0.8);
+	
+	vec4 beach_color = texture(beach, vec2(UV.x, (UV.y)));
+	if ((beach_color.a > 0.1) ) {
+		color = beach_color;
+	}
+	else {
+		color = mix(color, textureLod(wave_pattern, mod(vec2(UV.x, UV.y)+TIME/64.0, 1.0), 1.0), 0.4);
+		color = mix(color, water_tint_0, 0.8);
+	}
 	COLOR = color;
 }"
 
@@ -40,13 +54,23 @@ void fragment() {
 shader = SubResource( 1 )
 shader_param/water_tint_0 = Plane( 0, 0.3, 0.6, 1 )
 shader_param/wave_pattern = ExtResource( 21 )
+shader_param/beach = ExtResource( 22 )
+
+[sub_resource type="Shader" id=3]
+code = "shader_type canvas_item;
+
+void fragment() {
+	COLOR = texture(TEXTURE, UV) *12.0;
+}"
+
+[sub_resource type="ShaderMaterial" id=4]
+shader = SubResource( 3 )
 
 [node name="Level" type="Node2D"]
 script = ExtResource( 3 )
 
 [node name="foregroundDoodads" type="CanvasLayer" parent="."]
 layer = -20
-visible = false
 
 [node name="TextureRect" type="TextureRect" parent="foregroundDoodads"]
 anchor_right = 1.0
@@ -67,9 +91,9 @@ material = SubResource( 2 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = -109.0
-margin_top = 442.0
+margin_top = 446.0
 margin_right = 890.0
-margin_bottom = 242.0
+margin_bottom = 246.0
 color = Color( 0, 0.0352941, 0.160784, 1 )
 
 [node name="House" type="Node2D" parent="."]
@@ -77,11 +101,26 @@ color = Color( 0, 0.0352941, 0.160784, 1 )
 [node name="House0" parent="House" instance=ExtResource( 5 )]
 position = Vector2( 966.6, -467 )
 
+[node name="House10" parent="House" instance=ExtResource( 5 )]
+position = Vector2( 9857, -874 )
+
 [node name="House1" parent="House" instance=ExtResource( 9 )]
 position = Vector2( 2064.6, -691 )
 
+[node name="House9" parent="House" instance=ExtResource( 9 )]
+position = Vector2( 8058, -682 )
+
+[node name="House14" parent="House" instance=ExtResource( 9 )]
+position = Vector2( 15404, -1373 )
+
 [node name="House2" parent="House" instance=ExtResource( 14 )]
 position = Vector2( 5561.6, -644 )
+
+[node name="House6" parent="House" instance=ExtResource( 14 )]
+position = Vector2( 9251, -914 )
+
+[node name="House7" parent="House" instance=ExtResource( 14 )]
+position = Vector2( 11257, -2177 )
 
 [node name="House3" parent="House" instance=ExtResource( 10 )]
 position = Vector2( 3400.6, -538 )
@@ -89,12 +128,23 @@ position = Vector2( 3400.6, -538 )
 [node name="House4" parent="House" instance=ExtResource( 15 )]
 position = Vector2( 4081.6, -433 )
 
+[node name="House11" parent="House" instance=ExtResource( 15 )]
+position = Vector2( 10686, -2137 )
+
 [node name="House5" parent="House" instance=ExtResource( 12 )]
 position = Vector2( 4967.6, -487 )
 
+[node name="House12" parent="House" instance=ExtResource( 12 )]
+position = Vector2( 11275, -1384 )
+
+[node name="House8" parent="House" instance=ExtResource( 12 )]
+position = Vector2( 6265, -180 )
+
 [node name="Node2D7" parent="House" instance=ExtResource( 15 )]
-visible = false
 position = Vector2( 6991.6, -273.122 )
+
+[node name="House13" parent="House" instance=ExtResource( 12 )]
+position = Vector2( 13952.8, -1186 )
 
 [node name="PlatformWall" type="Node2D" parent="."]
 
@@ -104,39 +154,121 @@ position = Vector2( 6991.6, -273.122 )
 position = Vector2( 667.6, -143 )
 scale = Vector2( 69.56, 1 )
 
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform"]
+position = Vector2( 0, 112 )
+scale = Vector2( 0.017, 1 )
+texture = ExtResource( 25 )
+
 [node name="platform4" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
 position = Vector2( 2121.6, -303 )
 scale = Vector2( 69.56, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform4"]
+position = Vector2( 0, 112 )
+scale = Vector2( 0.017, 1 )
+texture = ExtResource( 25 )
 
 [node name="platform5" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
 position = Vector2( 3694.6, -116 )
 scale = Vector2( 69.56, 1 )
 
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform5"]
+position = Vector2( 0, 112 )
+scale = Vector2( 0.017, 1 )
+texture = ExtResource( 25 )
+
 [node name="platform7" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
 position = Vector2( 6604.6, 43.8777 )
 scale = Vector2( 69.56, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform7"]
+position = Vector2( 0, 112 )
+scale = Vector2( 0.017, 1 )
+texture = ExtResource( 25 )
 
 [node name="platform8" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
 position = Vector2( 8118.6, -286.122 )
 scale = Vector2( 69.56, 1 )
 
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform8"]
+position = Vector2( 0, 112 )
+scale = Vector2( 0.017, 1 )
+texture = ExtResource( 25 )
+
 [node name="platform9" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
 position = Vector2( 9676, -536 )
 scale = Vector2( 69.56, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform9"]
+position = Vector2( 0, 112 )
+scale = Vector2( 0.017, 1 )
+texture = ExtResource( 25 )
+
+[node name="platform91" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 14038, -988 )
+scale = Vector2( 69.56, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform91"]
+position = Vector2( 0, 112 )
+scale = Vector2( 0.017, 1 )
+texture = ExtResource( 25 )
+
+[node name="platform92" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 15399, -988 )
+scale = Vector2( 69.56, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform92"]
+position = Vector2( 0, 112 )
+scale = Vector2( 0.017, 1 )
+texture = ExtResource( 25 )
+
+[node name="platform93" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 16738, -988 )
+scale = Vector2( 69.56, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform93"]
+position = Vector2( 0, 112 )
+scale = Vector2( 0.017, 1 )
+texture = ExtResource( 25 )
+
+[node name="platform101" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 18100, -3464 )
+scale = Vector2( 69.56, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform101"]
+position = Vector2( 0, 112 )
+scale = Vector2( 0.017, 1 )
+texture = ExtResource( 25 )
 
 [node name="platform10" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
 position = Vector2( 11030, -1171 )
 scale = Vector2( 69.56, 1 )
 
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform10"]
+position = Vector2( 0, 112 )
+scale = Vector2( 0.017, 1 )
+texture = ExtResource( 25 )
+
 [node name="platform11" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
 position = Vector2( 11025, -1814 )
 scale = Vector2( 69.56, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform11"]
+position = Vector2( 0, 112 )
+scale = Vector2( 0.017, 1 )
+texture = ExtResource( 25 )
 
 [node name="platform6" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
 position = Vector2( 5167.6, -271 )
 scale = Vector2( 69.56, 1 )
 
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform6"]
+position = Vector2( 0, 112 )
+scale = Vector2( 0.017, 1 )
+texture = ExtResource( 25 )
+
 [node name="platform2" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
 position = Vector2( 821.6, -661 )
 scale = Vector2( 11.48, 1 )
 
@@ -144,21 +276,28 @@ scale = Vector2( 11.48, 1 )
 position = Vector2( 10633, -1509 )
 scale = Vector2( 11.48, 1 )
 
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform12"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
 [node name="platform13" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
 position = Vector2( 10454, -1354 )
 scale = Vector2( 11.48, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform13"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
 
 [node name="platform14" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
 position = Vector2( 10961, -1341 )
 scale = Vector2( 11.48, 1 )
 
-[node name="platform15" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
-position = Vector2( -387.2, -263 )
-scale = Vector2( 11.48, 1 )
-
-[node name="platform16" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
-position = Vector2( -157.201, -263 )
-scale = Vector2( 11.48, 1 )
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform14"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
 
 [node name="platform20" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
 position = Vector2( 11148.8, -1515 )
@@ -169,137 +308,814 @@ position = Vector2( 11378.8, -1515 )
 scale = Vector2( 11.48, 1 )
 
 [node name="platform22" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
 position = Vector2( 11148.8, -1515 )
 scale = Vector2( 11.48, 1 )
 
 [node name="platform23" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
 position = Vector2( 11378.8, -1515 )
-scale = Vector2( 11.48, 1 )
-
-[node name="platform24" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
-position = Vector2( 11148.8, -2062 )
-scale = Vector2( 11.48, 1 )
-
-[node name="platform25" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
-position = Vector2( 11378.8, -2062 )
-scale = Vector2( 11.48, 1 )
-
-[node name="platform18" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
-position = Vector2( -848.2, -334 )
-scale = Vector2( 11.48, 1 )
-
-[node name="platform19" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
-position = Vector2( -618, -302 )
 scale = Vector2( 11.48, 1 )
 
 [node name="platform17" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
 position = Vector2( 11592, -1340 )
 scale = Vector2( 11.48, 1 )
 
-[node name="HardPlatform" parent="PlatformWall/Platform" instance=ExtResource( 8 )]
-position = Vector2( 367, -614 )
-scale = Vector2( 10, 1 )
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform17"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform24" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 11831.8, -1168 )
+scale = Vector2( 11.48, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform24"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform25" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 12045, -993 )
+scale = Vector2( 11.48, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform25"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform79" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 11831.8, -1505 )
+scale = Vector2( 11.48, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform79"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform80" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 12045, -1330 )
+scale = Vector2( 11.48, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform80"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform81" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 12453.8, -987 )
+scale = Vector2( 11.48, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform81"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform83" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 12815.8, -993 )
+scale = Vector2( 11.48, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform83"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform84" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 13224.6, -987 )
+scale = Vector2( 11.48, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform84"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform82" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 12667, -812 )
+scale = Vector2( 11.48, 1 )
 
 [node name="platform3" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
 position = Vector2( 1155.6, -415 )
-rotation = 0.499151
+scale = Vector2( 11, 1 )
+
+[node name="platform71" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 9717.8, -1078 )
+scale = Vector2( 11.48, 1 )
+
+[node name="platform72" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 10051.8, -832 )
+scale = Vector2( 11, 1 )
+
+[node name="platform26" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 1527, -856 )
+scale = Vector2( 11, 1 )
+
+[node name="platform27" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 1746, -856 )
+scale = Vector2( 11, 1 )
+
+[node name="platform28" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 1959, -856 )
+scale = Vector2( 11, 1 )
+
+[node name="platform29" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 2099, -856 )
+scale = Vector2( 11, 1 )
+
+[node name="platform30" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 2305, -675 )
+scale = Vector2( 11, 1 )
+
+[node name="platform31" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 2508, -675 )
+scale = Vector2( 11, 1 )
+
+[node name="platform32" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 2664, -675 )
+scale = Vector2( 11, 1 )
+
+[node name="platform54" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 7520, -852 )
+scale = Vector2( 11, 1 )
+
+[node name="platform55" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 7739, -852 )
+scale = Vector2( 11, 1 )
+
+[node name="platform56" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 7952, -852 )
+scale = Vector2( 11, 1 )
+
+[node name="platform57" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 8092, -852 )
+scale = Vector2( 11, 1 )
+
+[node name="platform58" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 8298, -671 )
+scale = Vector2( 11, 1 )
+
+[node name="platform59" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 8501, -671 )
+scale = Vector2( 11, 1 )
+
+[node name="platform60" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 8657, -671 )
+scale = Vector2( 11, 1 )
+
+[node name="platform33" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 3229, -675 )
+scale = Vector2( 11, 1 )
+
+[node name="platform34" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 3448, -675 )
+scale = Vector2( 11, 1 )
+
+[node name="platform35" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 3560, -675 )
+scale = Vector2( 11, 1 )
+
+[node name="platform36" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 4086, -650 )
+scale = Vector2( 11, 1 )
+
+[node name="platform37" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 3880, -456 )
+scale = Vector2( 11, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform37"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform38" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 4080, -456 )
+scale = Vector2( 11, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform38"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform39" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 4267, -456 )
+scale = Vector2( 11, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform39"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform67" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 10696, -2360 )
+scale = Vector2( 11, 1 )
+
+[node name="platform68" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 10490, -2165 )
+scale = Vector2( 11, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform68"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform69" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 10690, -2165 )
+scale = Vector2( 11, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform69"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform70" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 10877, -2165 )
+scale = Vector2( 11, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform70"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform50" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 6999, -495 )
+scale = Vector2( 11, 1 )
+
+[node name="platform51" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 6793, -301 )
+scale = Vector2( 11, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform51"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform52" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 6993, -301 )
+scale = Vector2( 11, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform52"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform53" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 7180, -301 )
+scale = Vector2( 11, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform53"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform40" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 4921, -608 )
+scale = Vector2( 11, 1 )
+
+[node name="platform41" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 4997, -608 )
+scale = Vector2( 11, 1 )
+
+[node name="platform48" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 6229, -305 )
+scale = Vector2( 11, 1 )
+
+[node name="platform49" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 6305, -305 )
+scale = Vector2( 11, 1 )
+
+[node name="platform42" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 5524, -967 )
+scale = Vector2( 11, 1 )
+
+[node name="platform43" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 5635, -967 )
+scale = Vector2( 11, 1 )
+
+[node name="platform44" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 5476, -738 )
+scale = Vector2( 11, 1 )
+
+[node name="platform45" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 5660, -738 )
+scale = Vector2( 11, 1 )
+
+[node name="platform46" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 5470, -513 )
+scale = Vector2( 11, 1 )
+
+[node name="platform47" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 5683, -519 )
+scale = Vector2( 11, 1 )
+
+[node name="platform61" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 9215, -1238 )
+scale = Vector2( 11, 1 )
+
+[node name="platform62" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 9326, -1238 )
+scale = Vector2( 11, 1 )
+
+[node name="platform63" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 9167, -1009 )
+scale = Vector2( 11, 1 )
+
+[node name="platform64" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 9351, -1009 )
+scale = Vector2( 11, 1 )
+
+[node name="platform65" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 9161, -784 )
+scale = Vector2( 11, 1 )
+
+[node name="platform66" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 9374, -790 )
+scale = Vector2( 11, 1 )
+
+[node name="platform73" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 11208, -2493 )
+scale = Vector2( 11, 1 )
+
+[node name="platform74" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 11319, -2493 )
+scale = Vector2( 11, 1 )
+
+[node name="platform75" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 11160, -2264 )
+scale = Vector2( 11, 1 )
+
+[node name="platform76" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 11344, -2264 )
+scale = Vector2( 11, 1 )
+
+[node name="platform77" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 11154, -2039 )
+scale = Vector2( 11, 1 )
+
+[node name="platform78" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 11367, -2045 )
+scale = Vector2( 11, 1 )
+
+[node name="platform85" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 13638.8, -1143 )
+scale = Vector2( 11.48, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform85"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform86" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 13826.6, -1317 )
+scale = Vector2( 11.48, 1 )
+
+[node name="platform87" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 14056.6, -1317 )
+scale = Vector2( 11.48, 1 )
+
+[node name="platform88" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 13826.6, -1317 )
+scale = Vector2( 11.48, 1 )
+
+[node name="platform89" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+visible = false
+position = Vector2( 14056.6, -1317 )
+scale = Vector2( 11.48, 1 )
+
+[node name="platform90" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 14269.8, -1142 )
+scale = Vector2( 11.48, 1 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Platform/platform90"]
+position = Vector2( 0, 15 )
+scale = Vector2( 0.045, 0.5 )
+texture = ExtResource( 24 )
+
+[node name="platform94" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 14865, -1543 )
+scale = Vector2( 11, 1 )
+
+[node name="platform95" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 15084, -1543 )
+scale = Vector2( 11, 1 )
+
+[node name="platform96" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 15297, -1543 )
+scale = Vector2( 11, 1 )
+
+[node name="platform97" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 15437, -1543 )
+scale = Vector2( 11, 1 )
+
+[node name="platform98" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 15643, -1362 )
+scale = Vector2( 11, 1 )
+
+[node name="platform99" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 15846, -1362 )
+scale = Vector2( 11, 1 )
+
+[node name="platform100" parent="PlatformWall/Platform" instance=ExtResource( 6 )]
+position = Vector2( 16002, -1362 )
 scale = Vector2( 11, 1 )
 
 [node name="Wall" type="Node2D" parent="PlatformWall"]
 
-[node name="wall" parent="PlatformWall/Wall" instance=ExtResource( 16 )]
-position = Vector2( 386.6, -1356 )
+[node name="wall2" parent="PlatformWall/Wall" instance=ExtResource( 16 )]
+position = Vector2( 7412, -507 )
 scale = Vector2( 1, 50 )
 
-[node name="wall2" parent="PlatformWall/Wall" instance=ExtResource( 16 )]
-position = Vector2( 7412, -947 )
-scale = Vector2( 1, 50 )
+[node name="Sprite" type="Sprite" parent="PlatformWall/Wall/wall2"]
+position = Vector2( 0, 10 )
+scale = Vector2( 0.4, 0.009 )
+texture = ExtResource( 26 )
 
 [node name="wall3" parent="PlatformWall/Wall" instance=ExtResource( 16 )]
 position = Vector2( 8979, -531 )
 scale = Vector2( 1, 50 )
 
+[node name="Sprite" type="Sprite" parent="PlatformWall/Wall/wall3"]
+position = Vector2( 0, 10 )
+scale = Vector2( 0.4, 0.009 )
+texture = ExtResource( 26 )
+
 [node name="wall4" parent="PlatformWall/Wall" instance=ExtResource( 16 )]
 position = Vector2( 10186, -1819 )
 scale = Vector2( 1, 50 )
 
-[node name="wall5" parent="PlatformWall/Wall" instance=ExtResource( 16 )]
-position = Vector2( 10731, -1500 )
+[node name="Sprite" type="Sprite" parent="PlatformWall/Wall/wall4"]
+position = Vector2( 0, 10 )
+scale = Vector2( 0.4, 0.009 )
+texture = ExtResource( 26 )
+
+[node name="wall7" parent="PlatformWall/Wall" instance=ExtResource( 16 )]
+position = Vector2( 10345, -1495 )
 scale = Vector2( 1, 50 )
 
-[node name="wall6" parent="PlatformWall/Wall" instance=ExtResource( 16 )]
-position = Vector2( 11265, -2286 )
+[node name="Sprite" type="Sprite" parent="PlatformWall/Wall/wall7"]
+position = Vector2( 0, 10 )
+scale = Vector2( 0.4, 0.009 )
+texture = ExtResource( 26 )
+
+[node name="wall8" parent="PlatformWall/Wall" instance=ExtResource( 16 )]
+position = Vector2( 17415, -1982 )
 scale = Vector2( 1, 50 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Wall/wall8"]
+position = Vector2( 0, 10 )
+scale = Vector2( 0.4, 0.009 )
+texture = ExtResource( 26 )
+
+[node name="wall9" parent="PlatformWall/Wall" instance=ExtResource( 16 )]
+position = Vector2( 17106, -2698 )
+scale = Vector2( 1, 50 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Wall/wall9"]
+position = Vector2( 0, 10 )
+scale = Vector2( 0.4, 0.009 )
+texture = ExtResource( 26 )
+
+[node name="wall10" parent="PlatformWall/Wall" instance=ExtResource( 16 )]
+position = Vector2( 17415, -3442 )
+scale = Vector2( 1, 50 )
+
+[node name="Sprite" type="Sprite" parent="PlatformWall/Wall/wall10"]
+position = Vector2( 0, 10 )
+scale = Vector2( 0.4, 0.009 )
+texture = ExtResource( 26 )
 
 [node name="FriendFoe" type="Node2D" parent="."]
 
-[node name="Cat" parent="FriendFoe" instance=ExtResource( 17 )]
-position = Vector2( 813, -239 )
-
 [node name="Shadow" parent="FriendFoe" instance=ExtResource( 18 )]
-position = Vector2( 1163, -240 )
+position = Vector2( 2517, -384 )
+
+[node name="Shadow2" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 2517, -512 )
+
+[node name="Shadow3" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 3382, -880 )
+
+[node name="Shadow4" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 4065, -525 )
+
+[node name="Shadow5" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 4351, -223 )
+
+[node name="Shadow6" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 5058, -696 )
+
+[node name="Shadow7" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 5386, -448 )
+
+[node name="Shadow8" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 5386, -325 )
+
+[node name="EndCat" parent="FriendFoe" instance=ExtResource( 8 )]
+position = Vector2( 18077, -3783 )
+scale = Vector2( 5, 5 )
+script = ExtResource( 23 )
+
+[node name="Shadow9" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 5709, -605 )
+
+[node name="Shadow10" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 5463, -1054 )
+
+[node name="Shadow11" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 6357, -334 )
+
+[node name="Shadow12" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 6549, -334 )
+
+[node name="Shadow13" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 6774, -334 )
+
+[node name="Shadow14" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 6959, -334 )
+
+[node name="Shadow15" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 7461, -922 )
+
+[node name="Shadow16" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 8156, -926 )
+
+[node name="Shadow17" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 8473, -734 )
+
+[node name="Shadow18" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 9385, -1297 )
+
+[node name="Shadow19" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 9984, -898 )
+
+[node name="Shadow20" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 10422, -1871 )
+
+[node name="Shadow21" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 10736, -1689 )
+
+[node name="Shadow22" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 10736, -1550 )
+
+[node name="Shadow23" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 10736, -1407 )
+
+[node name="Shadow24" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 11270, -1416 )
+
+[node name="Shadow25" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 11270, -1277 )
+
+[node name="Shadow26" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 11270, -1134 )
+
+[node name="Shadow27" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 11270, -2170 )
+
+[node name="Shadow28" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 11270, -2031 )
+
+[node name="Shadow29" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 11270, -1888 )
+
+[node name="CatSpawn" type="Sprite" parent="FriendFoe"]
+position = Vector2( 1480, -897 )
+texture = ExtResource( 17 )
+script = ExtResource( 2 )
+
+[node name="CatSpawn2" type="Sprite" parent="FriendFoe"]
+position = Vector2( 2679, -403 )
+texture = ExtResource( 17 )
+script = ExtResource( 2 )
+
+[node name="CatSpawn3" type="Sprite" parent="FriendFoe"]
+position = Vector2( 3208, -940 )
+texture = ExtResource( 17 )
+script = ExtResource( 2 )
+
+[node name="CatSpawn4" type="Sprite" parent="FriendFoe"]
+position = Vector2( 4879, -660 )
+texture = ExtResource( 17 )
+script = ExtResource( 2 )
+
+[node name="CatSpawn5" type="Sprite" parent="FriendFoe"]
+position = Vector2( 5693, -1034 )
+texture = ExtResource( 17 )
+script = ExtResource( 2 )
+
+[node name="CatSpawn6" type="Sprite" parent="FriendFoe"]
+position = Vector2( 9205, -1299 )
+texture = ExtResource( 17 )
+script = ExtResource( 2 )
+
+[node name="CatSpawn7" type="Sprite" parent="FriendFoe"]
+position = Vector2( 11396, -1566 )
+texture = ExtResource( 17 )
+script = ExtResource( 2 )
+
+[node name="CatSpawn8" type="Sprite" parent="FriendFoe"]
+position = Vector2( 11366, -2544 )
+texture = ExtResource( 17 )
+script = ExtResource( 2 )
+
+[node name="Shadow30" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 13947.8, -1218 )
+
+[node name="Shadow31" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 13947.8, -1079 )
+
+[node name="Shadow32" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 13947.8, -936 )
+
+[node name="Shadow33" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 14806, -1613 )
+
+[node name="Shadow34" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 15501, -1617 )
+
+[node name="Shadow35" parent="FriendFoe" instance=ExtResource( 18 )]
+position = Vector2( 15818, -1425 )
 
 [node name="EyeCandy" type="Node2D" parent="."]
 
+[node name="Bricks2" parent="EyeCandy" instance=ExtResource( 11 )]
+visible = false
+position = Vector2( 691, -426 )
+
 [node name="Bricks2" parent="." instance=ExtResource( 11 )]
+visible = false
 position = Vector2( 687, -83 )
 
 [node name="Character" parent="." instance=ExtResource( 13 )]
 position = Vector2( 92, -287 )
 
 [node name="deathplane" parent="." instance=ExtResource( 7 )]
-position = Vector2( 708, 201 )
+position = Vector2( 708, 553 )
 scale = Vector2( 100000, 3 )
 
+[node name="CanvasLayer3" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="ColorRect2" type="ColorRect" parent="CanvasLayer3"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.184314 )
+
+[node name="Horizon" type="ParallaxBackground" parent="."]
+layer = -10
+follow_viewport_scale = 0.05
+
+[node name="ParallaxLayer" type="ParallaxLayer" parent="Horizon"]
+motion_scale = Vector2( 0, 0.05 )
+
+[node name="Sprite2" type="Sprite" parent="Horizon/ParallaxLayer"]
+position = Vector2( 35, -63 )
+scale = Vector2( 1.7, 1.7 )
+texture = ExtResource( 20 )
+
+[node name="ColorRect" type="ColorRect" parent="Horizon"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 1, 1, 1, 0.184314 )
+
+[node name="Ground" type="ParallaxBackground" parent="."]
+layer = -9
+follow_viewport_enable = true
+follow_viewport_scale = 0.1
+
+[node name="Sprite3" type="Sprite" parent="Ground"]
+position = Vector2( 5204, 5547 )
+scale = Vector2( 15, 15 )
+texture = ExtResource( 22 )
+
 [node name="Background1" type="ParallaxBackground" parent="."]
-layer = -7
-visible = false
+layer = -8
 follow_viewport_enable = true
 follow_viewport_scale = 0.35
 
-[node name="deathplane3" parent="Background1" instance=ExtResource( 7 )]
-position = Vector2( 1646, -88 )
-scale = Vector2( 100000, 5 )
+[node name="FogEffect" type="Node2D" parent="Background1"]
+material = SubResource( 4 )
 
-[node name="Sprite" type="Sprite" parent="Background1"]
+[node name="CanvasModulate" type="CanvasModulate" parent="Background1"]
+
+[node name="Sprite14" type="Sprite" parent="Background1/CanvasModulate"]
+position = Vector2( 10980, -133 )
+scale = Vector2( 3, 3 )
+texture = ExtResource( 19 )
+flip_h = true
+
+[node name="Sprite15" type="Sprite" parent="Background1/CanvasModulate"]
+position = Vector2( 14726, -133 )
+scale = Vector2( 3, 3 )
+texture = ExtResource( 19 )
+flip_h = true
+
+[node name="BrickWall5" parent="Background1/CanvasModulate" instance=ExtResource( 4 )]
+position = Vector2( 12699, 223 )
+
+[node name="Sprite" type="Sprite" parent="Background1/CanvasModulate"]
 position = Vector2( 1180, 42 )
 scale = Vector2( 3, 3 )
 texture = ExtResource( 19 )
 
-[node name="Sprite10" type="Sprite" parent="Background1"]
+[node name="Sprite10" type="Sprite" parent="Background1/CanvasModulate"]
 position = Vector2( 4926, 42 )
 scale = Vector2( 3, 3 )
 texture = ExtResource( 19 )
 
-[node name="Bricks" parent="Background1" instance=ExtResource( 11 )]
-visible = false
+[node name="BrickWall" type="Node2D" parent="Background1/CanvasModulate"]
+position = Vector2( 2955, 390 )
 
-[node name="Bricks2" parent="Background1" instance=ExtResource( 11 )]
+[node name="Bricks2" parent="Background1/CanvasModulate/BrickWall" instance=ExtResource( 11 )]
+position = Vector2( -3840, -809 )
+scale = Vector2( 1.15394, 1.15394 )
 
-[node name="Bricks4" parent="Background1" instance=ExtResource( 11 )]
-position = Vector2( 4293, -384 )
+[node name="Bricks3" parent="Background1/CanvasModulate/BrickWall" instance=ExtResource( 11 )]
+position = Vector2( 956, -809 )
+scale = Vector2( 1.15394, 1.15394 )
 
-[node name="Bricks3" parent="Background1" instance=ExtResource( 11 )]
-position = Vector2( 1628, -383 )
+[node name="Bricks4" parent="Background1/CanvasModulate/BrickWall" instance=ExtResource( 11 )]
+position = Vector2( -1503, -809 )
+scale = Vector2( 1.15394, 1.15394 )
 
-[node name="Bricks5" parent="Background1" instance=ExtResource( 11 )]
-position = Vector2( -835, 379 )
+[node name="BrickWall2" type="Node2D" parent="Background1/CanvasModulate"]
+position = Vector2( 2955, 1264 )
 
-[node name="Bricks6" parent="Background1" instance=ExtResource( 11 )]
-position = Vector2( 4293, 379 )
+[node name="Bricks2" parent="Background1/CanvasModulate/BrickWall2" instance=ExtResource( 11 )]
+position = Vector2( -3840, -809 )
+scale = Vector2( 1.15394, 1.15394 )
 
-[node name="Bricks7" parent="Background1" instance=ExtResource( 11 )]
-position = Vector2( 1628, 380 )
+[node name="Bricks3" parent="Background1/CanvasModulate/BrickWall2" instance=ExtResource( 11 )]
+position = Vector2( 956, -809 )
+scale = Vector2( 1.15394, 1.15394 )
+
+[node name="Bricks4" parent="Background1/CanvasModulate/BrickWall2" instance=ExtResource( 11 )]
+position = Vector2( -1503, -809 )
+scale = Vector2( 1.15394, 1.15394 )
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = -7
+
+[node name="ColorRect2" type="ColorRect" parent="CanvasLayer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -4096.0
+margin_top = -4096.0
+margin_right = 4096.0
+margin_bottom = 4096.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color( 1, 1, 1, 0.141176 )
 
 [node name="Background2" type="ParallaxBackground" parent="."]
-layer = -7
-visible = false
+layer = -6
 follow_viewport_enable = true
 follow_viewport_scale = 0.45
-
-[node name="deathplane3" parent="Background2" instance=ExtResource( 7 )]
-position = Vector2( 1646, -88 )
-scale = Vector2( 100000, 5 )
 
 [node name="Sprite11" type="Sprite" parent="Background2"]
 position = Vector2( 2979, 333 )
@@ -313,22 +1129,62 @@ scale = Vector2( 3, 3 )
 texture = ExtResource( 19 )
 flip_h = true
 
-[node name="BricksReversed" parent="Background2" instance=ExtResource( 4 )]
-visible = false
+[node name="BrickWall2" parent="Background2" instance=ExtResource( 4 )]
+position = Vector2( 4698, 689 )
 
-[node name="Horizon" type="ParallaxBackground" parent="."]
-layer = -8
-visible = false
-follow_viewport_enable = true
-follow_viewport_scale = 0.05
+[node name="Sprite2" type="Sprite" parent="Background2"]
+position = Vector2( 10903, 194 )
+scale = Vector2( 3, 3 )
+texture = ExtResource( 19 )
 
-[node name="deathplane2" parent="Horizon" instance=ExtResource( 7 )]
-position = Vector2( 1840, -71.0002 )
-scale = Vector2( 100000, 5 )
+[node name="Sprite13" type="Sprite" parent="Background2"]
+position = Vector2( 14649, 194 )
+scale = Vector2( 3, 3 )
+texture = ExtResource( 19 )
 
-[node name="Sprite2" type="Sprite" parent="Horizon"]
-position = Vector2( -6000, -1253 )
-scale = Vector2( 15, 15 )
-texture = ExtResource( 20 )
+[node name="BrickWall3" type="Node2D" parent="Background2"]
+position = Vector2( 12678, 542 )
+
+[node name="Bricks2" parent="Background2/BrickWall3" instance=ExtResource( 11 )]
+position = Vector2( -3840, -809 )
+scale = Vector2( 1.15394, 1.15394 )
+
+[node name="Bricks3" parent="Background2/BrickWall3" instance=ExtResource( 11 )]
+position = Vector2( 956, -809 )
+scale = Vector2( 1.15394, 1.15394 )
+
+[node name="Bricks4" parent="Background2/BrickWall3" instance=ExtResource( 11 )]
+position = Vector2( -1503, -809 )
+scale = Vector2( 1.15394, 1.15394 )
+
+[node name="BrickWall4" type="Node2D" parent="Background2"]
+position = Vector2( 12678, 1416 )
+
+[node name="Bricks2" parent="Background2/BrickWall4" instance=ExtResource( 11 )]
+position = Vector2( -3840, -809 )
+scale = Vector2( 1.15394, 1.15394 )
+
+[node name="Bricks3" parent="Background2/BrickWall4" instance=ExtResource( 11 )]
+position = Vector2( 956, -809 )
+scale = Vector2( 1.15394, 1.15394 )
+
+[node name="Bricks4" parent="Background2/BrickWall4" instance=ExtResource( 11 )]
+position = Vector2( -1503, -809 )
+scale = Vector2( 1.15394, 1.15394 )
+
+[node name="CanvasLayer2" type="CanvasLayer" parent="."]
+layer = -5
+
+[node name="ColorRect2" type="ColorRect" parent="CanvasLayer2"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -4096.0
+margin_top = -4096.0
+margin_right = 4096.0
+margin_bottom = 4096.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color( 1, 1, 1, 0.141176 )
 
 [node name="SpawnPoint" type="Node2D" parent="."]
+position = Vector2( 84, -339 )

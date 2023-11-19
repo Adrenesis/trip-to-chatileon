@@ -48,8 +48,9 @@ var land_frame_float = 0.0
 var wj_lock_frame_count = 0
 var is_wj_locked = false
 var airborn = true
-var landing = false
+var is_landing = false
 var is_touching_wall = false
+var was_touching_wall = false
 var is_wall_jumping_left = false
 var is_wall_jumping_right = false
 var has_just_jumped = false
@@ -74,7 +75,10 @@ func _ready():
 	$Area2DTouchGround.connect("area_entered", self, "_on_ground_touched")
 	$Area2DBoundBox.connect("area_entered", self, "_on_wall_touched")
 	$Area2DDeathBox.connect("area_entered", self, "_on_deathplane_touched")
+	$Area2DCatBox.connect("area_entered", self, "_on_cat_touched")
+	$Area2DBonkBox.connect("area_entered", self, "_on_bonk_touched")
 	Engine.time_scale = 0.8
+	print("character_ready")
 	pass # Replace with function body.
 
 
@@ -87,7 +91,7 @@ func _physics_process(delta):
 			is_wj_locked = false
 		wj_lock_frame_count += 1
 	if Input.is_action_pressed("ui_left"):
-		if not airborn and not landing:
+		if not airborn and not is_landing:
 			anim_state = ANIM_STATE.WALKING
 			walk_frame_float += WALK_ANIMATION_SPEED * delta * 60.0
 			#print("[", frame_count, "] walk")
@@ -95,7 +99,7 @@ func _physics_process(delta):
 		if not is_wj_locked:
 			$Sprite.flip_h = true
 	elif Input.is_action_pressed("ui_right"):
-		if not airborn and not landing:
+		if not airborn and not is_landing:
 			anim_state = ANIM_STATE.WALKING
 			walk_frame_float += WALK_ANIMATION_SPEED * delta * 60.0
 		speed.x += ACCEL_X_WALK * delta * 60.0
@@ -105,10 +109,11 @@ func _physics_process(delta):
 		if not is_wj_locked:
 			speed.x /= IDLE_X_DAMPING
 		if (speed.x < IDLE_STOP_THESHOLD) and (speed.x > -IDLE_STOP_THESHOLD):
-			if not airborn and not landing:
+			if not airborn and not is_landing:
 				anim_state = ANIM_STATE.IDLE
 			speed.x = 0.0
 	if Input.is_action_just_pressed("ui_up") and (not airborn or is_touching_wall):
+		$JumpSFX.proxy_play()
 		print("[", frame_count, "] jump")
 		has_just_jumped = true
 		jump_frame_float = 0.0
@@ -162,6 +167,8 @@ func _physics_process(delta):
 		if is_touching_wall:
 			anim_state = ANIM_STATE.WALL_JUMPING
 			print("[", frame_count, "] wall jump init")
+			if not was_touching_wall:
+				$LandSFX.proxy_play()
 			
 			
 	else:
@@ -214,12 +221,13 @@ func _physics_process(delta):
 		change_spritesheet(SPRITESHEET_LANDING, LAND_HFRAMES, LAND_VFRAMES)
 		land_frame_float += LAND_ANIMATION_SPEED * delta * 60.0
 		if land_frame_float > 2.1:
-			landing = false
+			is_landing = false
 		else:
 			$Sprite.frame = floor(land_frame_float)
 	elif ANIM_STATE.WALL_JUMPING == anim_state:
 		change_spritesheet(SPRITESHEET_WALL_JUMPING, WALL_JUMP_HFRAMES, WALL_JUMP_VFRAMES)
 		$Sprite.frame = 0
+	was_touching_wall = is_touching_wall
 	
 
 func change_spritesheet(spritesheet, hframes, vframes):
@@ -228,9 +236,11 @@ func change_spritesheet(spritesheet, hframes, vframes):
 	$Sprite.vframes = vframes
 		
 
-func _on_ground_touched(area):
+func _on_ground_touched(area, cancel_sound = false):
 	#print("[", frame_count, "] touched ", area)
 	if speed.y >= 0.0: 
+		if not cancel_sound:
+			pass
 #		self.position.y = (
 #			area.get_children()[0].global_position.y - 
 #			area.get_children()[0].shape.get_extents().y
@@ -238,7 +248,9 @@ func _on_ground_touched(area):
 		airborn = false
 		
 		if speed.y > 0.0:
-			landing = true
+			
+			$LandSFX.proxy_play()
+			is_landing = true
 			anim_state = ANIM_STATE.LANDING
 			land_frame_float = 0.0
 
@@ -258,17 +270,39 @@ func _on_wall_touched(area):
 			speed.x = 0.0
 		self.position.x = wall_position.x - ((wall_shape.shape.extents.x/2.0) * wall_scale.x + CHARACTER_WIDTH/2.0)
 	
+	
+	
 func _on_deathplane_touched(area):
+	get_parent().spleen = 0.0
+	get_parent().teleport_to_spawn(self)
 	#print("[", frame_count, "] touched ", area)
 	print("DEATH TOUCHED")
 	
+func _on_bonk_touched(area):
+	speed.y = 0
+	$LandSFX.proxy_play()
+	
+func _on_cat_touched(area):
+	get_parent().spleen = 0.0
+	$CatSFX.proxy_play()
+	if area.get_parent().name == "EndCat":
+		get_parent().end_level()
+	else:
+		area.get_parent().queue_free()
+	
+	
+	#print("[", frame_count, "] touched ", area)
+	
 
 func _on_ground_leaved(area: Area2D):
+	if get_parent().get_parent().is_paused:
+		return
 	print("[", frame_count, "] leaved: ", area, "\n")
 	airborn = true
 	for f_area in $Area2DStayGround.get_overlapping_areas():
 		if f_area != area:
-			print(f_area.name)
 			if f_area.name == "Area2DPlatform":
-				_on_ground_touched(f_area)
+				
+				print("retouching ", f_area.name)
+				_on_ground_touched(f_area, true)
 	print($RayCast2D.get_collision_point())

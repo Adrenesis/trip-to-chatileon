@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://scenes/Game.gd" type="Script" id=2]
+[ext_resource path="res://audio/songs/Deep Blue.ogg" type="AudioStream" id=3]
+[ext_resource path="res://scenes/JukeBox.gd" type="Script" id=4]
+
+[node name="Game" type="Node"]
+script = ExtResource( 2 )
+
+[node name="JukeBox" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 3 )
+autoplay = true
+bus = "Music"
+script = ExtResource( 4 )
+
+[node name="JumpSFX" type="AudioStreamPlayer" parent="."]

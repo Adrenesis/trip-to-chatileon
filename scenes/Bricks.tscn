@@ -5,6 +5,7 @@
 
 [node name="Bricks2" type="Node2D"]
 position = Vector2( -835, -384 )
+scale = Vector2( 1.15394, 1.15394 )
 
 [node name="Sprite2" type="Sprite" parent="."]
 position = Vector2( 1366.5, 531 )

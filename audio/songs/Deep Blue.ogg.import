@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Deep Blue.ogg-fcc2b4e02039e3ca9619bae8df8aacdb.oggstr"
+
+[deps]
+
+source_file="res://audio/songs/Deep Blue.ogg"
+dest_files=[ "res://.import/Deep Blue.ogg-fcc2b4e02039e3ca9619bae8df8aacdb.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0
