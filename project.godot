@@ -22,7 +22,8 @@ _global_script_class_icons={
 
 config/name="Jam 2023"
 run/main_scene="res://scenes/Game.tscn"
-config/icon="res://icon.png"
+boot_splash/image="res://graphics/cover.png"
+config/icon="res://graphics/logo.png"
 
 [gui]
 
