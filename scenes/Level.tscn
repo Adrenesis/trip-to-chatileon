@@ -988,7 +988,6 @@ visible = false
 position = Vector2( 691, -426 )
 
 [node name="Bricks2" parent="." instance=ExtResource( 11 )]
-visible = false
 position = Vector2( 687, -83 )
 
 [node name="Character" parent="." instance=ExtResource( 13 )]
@@ -1178,10 +1177,10 @@ layer = -5
 [node name="ColorRect2" type="ColorRect" parent="CanvasLayer2"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -4096.0
-margin_top = -4096.0
-margin_right = 4096.0
-margin_bottom = 4096.0
+margin_left = -5178.0
+margin_top = -4443.0
+margin_right = 3014.0
+margin_bottom = 3749.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 color = Color( 1, 1, 1, 0.141176 )

@@ -70,14 +70,6 @@ size_flags_vertical = 3
 texture = ExtResource( 3 )
 expand = true
 
-[node name="TripToChatileon" type="TextureRect" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-texture = ExtResource( 4 )
-expand = true
-
 [node name="ColorRect" type="ColorRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -318,3 +310,11 @@ margin_right = 1024.0
 margin_bottom = 3190.0
 rect_min_size = Vector2( 0, 70 )
 size_flags_horizontal = 3
+
+[node name="TripToChatileon" type="TextureRect" parent="ColorRect2"]
+margin_right = 1024.0
+margin_bottom = 600.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture = ExtResource( 4 )
+expand = true
